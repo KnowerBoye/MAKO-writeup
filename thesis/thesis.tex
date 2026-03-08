@@ -1,0 +1,171 @@
+% =============================================================================
+% THESIS TEMPLATE - UMaT Standard
+% =============================================================================
+% University of Mines and Technology (UMaT), Tarkwa
+% BSc in Computer Science and Engineering
+% =============================================================================
+
+\documentclass[oneside,12pt]{Latex/Classes/PhDthesisPSnPDF}
+
+% =============================================================================
+% PACKAGES
+% =============================================================================
+\usepackage{acro}                % Acronyms
+\usepackage{nicefrac}            % Nice fractions
+\usepackage{times}               % Font: Times New Roman (UMaT standard)
+\usepackage{multicol}            % Multi-column layouts
+\usepackage{float}               % Float positioning
+\usepackage{listings}            % Code listings
+\usepackage{appendix}            % Appendices
+\usepackage{color,xcolor,soul}   % Colors and highlighting
+\usepackage{enumitem}            % Custom lists
+
+% =============================================================================
+% FORMATTING
+% =============================================================================
+% Section spacing
+\titlespacing\section{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\subsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\subsection{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+
+% Section formatting
+\titleformat*{\section}{\normalfont\fontsize{12}{19}\bfseries}
+\titleformat*{\subsection}{\normalfont\fontsize{12}{17}}
+\titleformat*{\subsubsection}{\normalfont\fontsize{12}{17}}
+
+% Paragraph formatting
+\setlength{\parskip}{0.8em}
+
+% Prevent overflow warnings
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+\setcitestyle{authoryear, round, longnamesfirst}
+
+% =============================================================================
+% MARGIN SETTINGS - UMaT Thesis Guide
+% =============================================================================
+\geometry{
+    paper=a4paper,
+    inner=0.0cm,
+    outer=0.0cm,
+    top=2.54cm,
+    bottom=2.54cm,
+    right=2.54cm,
+    left=3.05cm  % Left margin for binding (UMaT: 3.05cm)
+}
+
+% =============================================================================
+% PDF METADATA
+% =============================================================================
+\ifpdf
+    \pdfinfo {
+        /Title (Your Thesis Title)
+        /Author (Your Name)
+        /Subject (Your Subject)
+        /Keywords (keyword1, keyword2, keyword3)
+    }
+    \pdfcatalog { /PageMode (/UseOutlines) /OpenAction (fitbh) }
+\fi
+
+% =============================================================================
+% THESIS INFORMATION - UMaT
+% =============================================================================
+\title{Your Thesis Title}
+\author{Your Name}
+\collegeordept{DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING}
+\university{UNIVERSITY OF MINES AND TECHNOLOGY}
+\faculty{FACULTY OF COMPUTING AND MATHEMATICAL SCIENCES}
+\crest{\includegraphics[width=4cm]{logo}}
+\degree{BACHELOR OF SCIENCE IN COMPUTER SCIENCE AND ENGINEERING}
+\degreedate{May, 2024}
+\location{Tarkwa}
+
+% =============================================================================
+% DOCUMENT
+% =============================================================================
+\begin{document}
+
+% Line spacing: 1.5 (UMaT standard)
+\onehalfspacing
+
+% -----------------------------------------------------------------------------
+% FRONT MATTER (Roman numerals)
+% -----------------------------------------------------------------------------
+\pagestyle{plain}
+\pagenumbering{roman}
+
+% -----------------------------------------------------------------------------
+% TITLE PAGE
+% -----------------------------------------------------------------------------
+\maketitl
+
+% -----------------------------------------------------------------------------
+% FRONT MATTER
+% -----------------------------------------------------------------------------
+\frontmatter
+
+% Declaration (optional)
+%\include{9_backmatter/declaration}
+
+% Abstract
+\include{0_frontmatter/abstract}
+
+% Dedication
+\include{0_frontmatter/dedication}
+
+% Acknowledgements
+\include{0_frontmatter/acknowledgement}
+
+% -----------------------------------------------------------------------------
+% TABLE OF CONTENTS
+% -----------------------------------------------------------------------------
+\begingroup
+\tableofcontents
+\endgroup
+
+% List of Figures
+\begingroup
+\listoffigures
+\endgroup
+
+% List of Tables (optional)
+%\listoftables
+
+% Glossary (optional)
+%\include{0_frontmatter/glossary}
+
+% Paragraph formatting: triple space between paragraphs (UMaT standard)
+\setlength{\parskip}{1.5em}
+
+% -----------------------------------------------------------------------------
+% MAIN MATTER (Arabic numerals)
+% -----------------------------------------------------------------------------
+\mainmatter
+\pagenumbering{arabic}
+
+% Chapters - edit or remove as needed
+\include{1_introduction/introduction}
+\include{2/literature_review}
+\include{3/methodology}
+\include{4/results_discussion}
+\include{5/conclusion}
+
+% -----------------------------------------------------------------------------
+% BACK MATTER
+% -----------------------------------------------------------------------------
+
+% Bibliography
+\begingroup
+\bibliographystyle{agsm}
+\bibliography{9_backmatter/references}
+\endgroup
+
+% Appendices (optional)
+%\appendix
+%\chapter{Appendix A}
+%\chapter{Appendix B}
+
+\end{document}
