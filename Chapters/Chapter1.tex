@@ -4,40 +4,80 @@
 
 \chapter{INTRODUCTION}
 
-\ifpdf
-	\graphicspath{{introduction/figures/PNG}{introduction/figures/PDF}{introduction/figures}}
-\else
-	\graphicspath{{introduction/figures/EPS}{introduction/figures}}
-\fi
 
-\section{Background}
-The background section of your work
+\section{Background Study}
+Large Language Model (LLM)-based multi-agent systems, where several LLM-powered agents collaborate to accomplish tasks that would otherwise be difficult for a single agent, have demonstrated significant potential in automating complex procedures within business workflows. These systems leverage the reasoning, planning, and language understanding capabilities of LLMs while distributing responsibilities across specialized agents. As a result, multi-agent architectures have emerged as a promising paradigm for building intelligent systems capable of handling multi-step and domain-specific tasks.
+
+\noindent Recent research indicates a growing interest in agentic AI frameworks such as LangGraph, CrewAI, and AutoGen. These frameworks provide architectural foundations and tooling for designing, orchestrating, and deploying intelligent agent systems \citep{derouiche2025agenticaiframeworksarchitectures}. They enable developers to define agents with specialized roles, establish communication mechanisms between agents, and coordinate task execution across multiple components. According to \cite{tran2025multiagentcollaborationmechanismssurvey,}, current multi-agent collaboration mechanisms can be categorized across several dimensions. Collaboration types include cooperation, competition, and coopetition, describing how agents interact to achieve their objectives. Collaboration strategies may be rule-based, role-based, or model-based, depending on how agent behavior is defined and coordinated. Communication structures may follow centralized, decentralized, or hierarchical patterns, while orchestration architectures may be static or dynamic depending on the nature of the task and domain requirements. These design principles collectively describe the operational foundations of modern multi-agent frameworks such as LangGraph, CrewAI, and AutoGen.
+
+\noindent In practice, frameworks such as LangGraph and AutoGen often recommend the use of Directed Acyclic Graphs (DAGs) to model workflows that require strict sequencing and deterministic execution. This approach is particularly common in enterprise and business workflows, where the order of task execution must be explicitly defined to reduce uncertainty arising from the probabilistic nature of LLMs. 
+However, DAG-based workflow definitions require developers to manually encode the sequence of tasks in advance. This introduces limitations in scenarios where workflows must adapt dynamically based on task context, domain knowledge, or intermediate outcomes.
+
+\noindent Knowledge graphs provide a complementary approach to addressing this challenge. Knowledge graphs represent information using semantic relationships between entities, enabling datasets to be connected through their underlying meaning rather than purely structural links. By representing entities, relationships, and constraints within a domain, knowledge graphs offer a structured and extensible way to model domain knowledge. Recent research has demonstrated the potential of integrating knowledge graphs with LLM-based systems. For example, knowledge graphs have been used to enhance retrieval-augmented generation, such as in KG-RAG \citep{sanmartin2024kgragbridginggapknowledge}, to improve tool and agent retrieval mechanisms \citep{nizar2025agentasagraphknowledgegraphbasedtool}, and to ground LLM reasoning in structured knowledge representations \citep{amayuelas2025groundingllmreasoningknowledge}. 
+Other applications include knowledge injection, semantic reasoning, and improving contextual understanding in LLM systems \citep{kau2024combiningknowledgegraphslarge}.
+
+\noindent Building on these developments, this project aims to design and implement a knowledge graph based multi-agent orchestration framework that leverages knowledge graphs to dynamically infer task sequencing within a workflow. Unlike traditional approaches that require explicit workflow definitions, the proposed framework relies on the knowledge graph to provide domain grounding, guide task decomposition, and facilitate tool and agent delegation. By leveraging semantic relationships between tasks, tools, and domain entities, the system can dynamically determine appropriate execution paths for a given workflow.
 
 \section{Problem Statement}
-The problem statement of your work
-% sample
-% The problem of hallucination in large language models (LLMs) has emerged as a critical barrier to their reliable deployment in knowledge-intensive applications. Despite their impressive fluency and generalisation capabilities, LLMs often generate outputs that are factually incorrect or inconsistent with external knowledge sources, a phenomenon known as hallucination \citep{ji2023survey,huang2023survey}. This issue is particularly acute in tasks such as knowledge graph question answering (KGQA), where the model must generate answers that are not only linguistically coherent but also structurally faithful to an underlying knowledge graph \citep{lan2022survey}.
+\noindent Enterprise and business workflows typically require clearly defined task sequencing and explicit role delegation in order to ensure reliable and predictable execution. In multi-agent systems, this requirement is commonly addressed using structured workflow representations such as Directed Acyclic Graphs (DAGs), where nodes represent tasks or agents and edges define dependencies that determine execution order.
 
-\section{Aim and Objectives}
+\noindent Modern agent orchestration frameworks such as LangGraph often adopt DAG-based workflow structures to model task dependencies and ensure deterministic execution paths. DAGs enable systems to enforce task ordering, avoid cyclic dependencies, and manage complex workflows by representing tasks as nodes connected through directed edges. This structure has been widely adopted in workflow orchestration and pipeline management systems due to its simplicity and reliability in representing sequential processes \citep{shankar2025langgraph_dag}.
 
-The aim of this project is to ........
+\noindent While DAG-based orchestration is effective for workflows with clearly defined sequences, it introduces limitations in large-scale systems that support multiple workflows involving varying combinations of agents and tools. In such environments, a separate DAG must typically be manually constructed and maintained for each workflow. 
+The process of designing, updating, and managing these DAG structures becomes increasingly complex and difficult to scale as the number of workflows increases.
+\noindent Furthermore, in cases where new agents or tools need to be introduced into the system, existing DAGs often need to be reconstructed or modified to incorporate these new components. This requirement increases the maintenance burden and reduces system flexibility, particularly in dynamic environments where agents and tools evolve over time.
+This limitation creates a critical gap in current multi-agent orchestration approaches: workflow structures must be explicitly defined rather than dynamically inferred. As a result, systems lack the ability to automatically determine appropriate task sequencing based on contextual knowledge of available agents, tools, and domain constraints.
 
-To achieve this aim, the following objectives have been set:......
+\noindent Consequently, an important research question arises: Can workflow structures be automatically generated instead of explicitly defined? Furthermore, how much contextual or domain knowledge is required for a system to infer appropriate task sequencing and agent delegation dynamically?
 
-\section{Tools and Facilities Used}
+\noindent This research addresses this gap by proposing a Knowledge Graph (KG)-based multi-agent orchestration framework that automatically infers workflows by leveraging semantic relationships within a knowledge graph. Instead of relying on predefined DAGs, the proposed framework models relationships between tasks, agents, and tools within a knowledge graph and determines appropriate execution sequences by traversing this structured representation of domain knowledge.
+In addition, the proposed solution supports dynamic agent discovery, allowing new agents or tools to be incorporated into the system without requiring reconstruction of existing workflows. By properly linking newly introduced agents or tools to the knowledge graph through defined semantic relationships, they immediately become part of the orchestration ecosystem and can be discovered and utilized during workflow inference.
 
-\subsection{Software Tools}
+\noindent Through this approach, the framework aims to provide a scalable, adaptive, and extensible orchestration mechanism for multi-agent systems, reducing the need for manually defined workflows while enabling flexible integration of new agents and tools.
 
-\subsection{Facilities}
+\section{Aim of the Study}
+The aim of this research is to propose a knowledge graph–based multi-agent orchestration framework that dynamically infers workflow structures in LLM-based multi-agent systems. The framework leverages semantic relationships within a knowledge graph to guide task sequencing, agent selection, and tool delegation without requiring explicitly predefined workflows such as Directed Acyclic Graphs (DAGs).
+
+\section{Objectives}
+\begin{itemize}
+    \item Design a knowledge graph–based multi-agent orchestration framework that defines the structure for task entry, agent representation, task delegation, and task completion.
+    \item Develop an orchestrator agent responsible for coordinating agents and managing workflow execution within the framework.
+    \item Design a knowledge graph traversal strategy to infer task sequencing and identify appropriate agents or tools for task execution.
+    \item Evaluate the effectiveness of the proposed framework in dynamically generating workflows and coordinating multi-agent interactions.
+    \item Implement a prototype application built on top of the framework to demonstrate its practical use and capabilities.
+\end{itemize}
+
 
 \section{Methods Used}
+This research adopts a Design Science Research (DSR) methodology to guide the development and evaluation of the proposed system. Design Science Research focuses on the creation and assessment of technological artifacts intended to address identified problems. In this study, the artifact is a knowledge graph–based multi-agent orchestration framework designed to dynamically infer workflows in LLM-based multi-agent systems.
+\begin{itemize}
+    \item A conceptual architecture for the knowledge graph–based orchestration framework is designed, defining the structure for task entry, agent representation, task delegation, and task completion.
+    \item A knowledge graph schema is developed to represent the relationships between tasks, agents, and tools. This structure provides the semantic foundation required for workflow inference.
+    \item An orchestrator agent is implemented to coordinate task execution, interact with the knowledge graph, and delegate tasks to appropriate agents or tools.
+    \item A traversal mechanism is designed to enable the system to navigate relationships within the knowledge graph in order to infer task sequencing and identify suitable agents or tools for execution.
+    \item A prototype system implementing the proposed framework is developed to demonstrate its functionality and validate the design.
+    \item The framework is evaluated using selected task scenarios to assess its ability to dynamically generate workflows, coordinate agents, and integrate additional agents or tools within the system.
+\end{itemize}
 
-The project employed the following methods:
-
-\section{Scope of Work}
 
 
+\section{Tools and Facilities}
+\subsection{Hardware}
+\begin{itemize}
+    \item MacBook Air M2, 16GB RAM / MacBook Air M3, 16GB RAM
+\end{itemize}
+\subsection{Software}
+\begin{itemize}
+    \item Foundational LLM model via API or local deployment
+    \item Knowledge Graph database (Neo4j)
+    \item Python 3.10+
+    \item Vector database (chromadb)
+\end{itemize}
+    
 
-\section{Organization of Work}
+\section{Scope}
+This research focuses on the design and implementation of a knowledge graph–based multi-agent orchestration framework for LLM-powered agent systems. The study covers the design of the framework architecture, development of an orchestrator agent, modeling of a knowledge graph to represent tasks, agents, and tools, and the implementation of a traversal strategy to enable dynamic workflow inference.
+A prototype application will be developed to demonstrate the functionality of the framework and evaluate its ability to coordinate agents and generate workflows dynamically. The scope of this research does not include the training or evaluation of large language models, as the study focuses on the orchestration framework rather than improvements to the underlying LLM models.
 
-
+\section{Work Organization}
+This project work is organized into five chapters. Chapter One deals with the introduction establishing context and goals. Chapter Two focuses on literature review, analyzing current approaches to Multi-Agent Orchestration and application of KG to ground LLM reasoning.  Chapter Three details the methodology and KG Orchestration Framework design and implementation. Chapter Four system testing and discussion with comprehensive evaluation results. Chapter Five provides conclusion and recommendations, summarizing findings and future work. 
