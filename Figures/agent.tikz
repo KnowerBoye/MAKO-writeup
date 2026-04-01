@@ -1,0 +1,58 @@
+\begin{tikzpicture}[
+    % Reduced horizontal node distance (from 1.5cm to 0.8cm)
+    node distance=1.1cm and 0.8cm,
+    >=Stealth, 
+    base/.style={draw, thick, fill=gray!10, minimum width=2.2cm, minimum height=0.7cm, align=center, font=\sffamily\bfseries},
+    core/.style={base, fill=red!20, minimum width=2cm},
+    tool/.style={base, fill=gray!15, font=\sffamily\scriptsize\ttfamily, minimum width=2.8cm, minimum height=0.5cm},
+    sub/.style={base, fill=gray!15, font=\sffamily\scriptsize, minimum width=3.4cm, minimum height=0.5cm}
+]
+
+    % --- Central Architecture ---
+    \node[core] (agent) {Agent};
+    \node[base, above=of agent] (memory) {Memory};
+    \node[base, right=of agent] (planning) {Planning};
+    \node[base, left=of agent] (tools) {Tools};
+    \node[base, below=of agent] (action) {Action};
+
+    % --- Memory Hierarchy (Tighter spacing) ---
+    \node[base, above left=0.5cm and -1.0cm of memory] (stm) {\footnotesize Short-term};
+    \node[base, above right=0.5cm and -1.0cm of memory] (ltm) {\footnotesize Long-term};
+
+    % --- Planning Components (Reduced right-side offset) ---
+    \node[sub, right=0.6cm of planning, yshift=1.1cm] (reflection) {Reflection};
+    \node[sub, below=0.2cm of reflection] (selfcritic) {Self-critics};
+    \node[sub, below=0.2cm of selfcritic] (cot) {Chain of thoughts};
+    \node[sub, below=0.2cm of cot] (subgoal) {Subgoal decomposition};
+
+    % --- Toolset Components (Reduced left-side offset) ---
+    \node[tool, left=0.6cm of tools, yshift=1.4cm] (calendar) {Calendar()};
+    \node[tool, below=0.2cm of calendar] (calculator) {Calculator()};
+    \node[tool, below=0.2cm of calculator] (code) {CodeInterpreter()};
+    \node[tool, below=0.2cm of code] (search) {Search()};
+    \node[tool, below=0.2cm of search] (more) {...more};
+
+    % --- Primary Connections ---
+    \foreach \dest in {memory, tools, planning, action} {
+        \draw[->, thick] (agent) -- (\dest);
+    }
+
+    % Branching for Memory
+    \draw[->, thick] (memory.north) -- ++(0,0.2) -| (stm.south);
+    \draw[->, thick] (memory.north) -- ++(0,0.2) -| (ltm.south);
+
+    % Branching for Planning (Tighter elbow)
+    \foreach \n in {reflection, selfcritic, cot, subgoal} {
+        \draw[->, thick] (planning.east) -- ++(0.3,0) |- (\n.west);
+    }
+
+    % Branching for Tools (Tighter elbow)
+    \foreach \t in {calendar, calculator, code, search, more} {
+        \draw[->, thick] (tools.west) -- ++(-0.3,0) |- (\t.east);
+    }
+
+    % --- Dashed Logic Flows ---
+    \draw[->, thick, dashed, gray] (memory.east) -- ++(0.15,0) |- (planning.north);
+    \draw[->, thick, dashed, gray] (tools.south) -- ++(0,-0.4) -| (action.west);
+
+\end{tikzpicture}

@@ -1,0 +1,86 @@
+
+
+\begin{tikzpicture}[
+    font=\sffamily,
+    >=Stealth,
+    % Define styles
+    panel/.style={draw=gray!30, fill=white, minimum height=8cm, rounded corners=5pt, thick},
+    userbox/.style={draw=none, fill=white, rounded corners=3pt, minimum width=2.8cm, minimum height=0.7cm, align=left, font=\scriptsize},
+    agenticon/.style={inner sep=0pt, minimum size=0.8cm},
+    workflowagent/.style={draw=none, inner sep=2pt, align=center},
+    toolpill/.style={draw=blue!50, fill=blue!10, rounded corners=8pt, minimum width=1.4cm, minimum height=0.4cm, inner sep=1pt}
+]
+
+    % --- PANEL 1: USER INSTRUCTION (BLUE) ---
+    \node[panel, fill=blue!70, minimum width=3.5cm] (p1) at (0,0) {};
+    \node[white, font=\bfseries\small, anchor=north] at ([yshift=-0.5cm]p1.north) {User Instruction};
+    
+    \node[userbox, below=1cm of p1.north] (u1) {Navigate to the restaurant.};
+    \node[userbox, below=0.3cm of u1] (u2) {Tell me how many calories i\\ burned working out today and\\ order me a lunch.};
+    \node[userbox, below=0.3cm of u2] (u3) {Send an email to the team\\ about today's meeting time.};
+    \node[userbox, below=0.3cm of u3] (u4) {Tell me the temperature in Paris\\ today and remind me in memo.};
+    
+    \node[userbox, below=0.6cm of u4, text=gray] (search) {\phantom{x} Search};
+    \node[circle, fill=red, text=white, font=\tiny\bfseries, inner sep=1pt, xshift=-0.3cm] at (search.east) {99+};
+    \node[white, font=\bfseries\small, anchor=south, yshift=0.3cm] at (p1.south) {Simple \& Complex tasks};
+
+    % --- PANEL 2: AGENT GRID (GRAY) ---
+    \node[panel, fill=gray!10, minimum width=4cm, right=0.5cm of p1] (p2) {};
+    
+    % Helper for robot face
+    \def\robotface#1#2{
+        \begin{scope}[shift={#1}]
+            \draw[thick, fill=white] (-0.3,-0.2) rectangle (0.3,0.2);
+            \draw[thick] (-0.1,0.05) circle (1pt); \draw[thick] (0.1,0.05) circle (1pt);
+            \draw[thick] (-0.15,-0.1) -- (0.15,-0.1);
+            \draw[thick] (0,0.2) -- (0,0.3); \draw[thick] (-0.1,0.3) -- (0.1,0.3);
+            \node[below=0.3cm, font=\scriptsize\bfseries] at (0,0) {#2};
+        \end{scope}
+    }
+
+    \robotface{($(p2.north)+( -1.1,-1.5)$)}{Chat}
+    \robotface{($(p2.north)+(  0,  -1.5)$)}{Shopping}
+    \robotface{($(p2.north)+(  1.1,-1.5)$)}{Navigation}
+    
+    \robotface{($(p2.north)+( -1.1,-3.2)$)}{Calendar}
+    \robotface{($(p2.north)+(  0,  -3.2)$)}{Music}
+    \robotface{($(p2.north)+(  1.1,-3.2)$)}{Video}
+    
+    \robotface{($(p2.north)+( -1.1,-4.9)$)}{Document}
+    \robotface{($(p2.north)+(  0,  -4.9)$)}{Meeting}
+    \node[font=\bfseries] at ($(p2.north)+(1.1,-4.7)$) {. . .};
+
+    % Bottom Nav Bar Simulation
+    \node[draw=gray!20, fill=white, minimum width=4cm, minimum height=1cm, anchor=south] at (p2.south) {};
+    \node[blue!70, font=\tiny\bfseries] at ($(p2.south)+( -0.5, 0.3)$) {Shopping};
+
+    % --- PANEL 3: MULTI-AGENT WORKFLOW (YELLOW) ---
+    \node[panel, fill=yellow!10, minimum width=4.5cm, right=0.5cm of p2] (p3) {};
+    \node[font=\bfseries\small, anchor=south, yshift=0.3cm] at (p3.south) {Multi-agent System Workflow};
+    
+    % Search bar top of P3
+    \node[draw=blue!50, fill=white, rounded corners=2pt, minimum width=3.5cm, minimum height=0.5cm, anchor=north, yshift=-0.5cm] (search3) at (p3.north) {};
+    \node[anchor=west, font=\scriptsize, xshift=0.1cm] at (search3.west) {\tiny $\bigcirc$ \ \underline{Organizing an Online Event}};
+
+    % Workflow Nodes
+    \node[workflowagent] (chat) at ($(p3.north)+( -1, -2)$) {\robotface{(0,0)}{Chat}};
+    \node[workflowagent] (cal) at ($(p3.north)+( 1, -2)$) {\robotface{(0,0)}{Calendar}};
+    \node[workflowagent] (doc) at ($(p3.south)+( 1, 2.5)$) {\robotface{(0,0)}{Document}};
+    \node[workflowagent] (meet) at ($(p3.south)+( -1, 2.5)$) {\robotface{(0,0)}{Meeting}};
+
+    % Tool/DB Pills
+    \foreach \n in {chat, cal, doc, meet} {
+        \node[toolpill, below=0.5cm of \n] (pill\n) {\tiny \ \ \ \ \ \ \ \ \ \ };
+        \node[anchor=west, blue!70, xshift=0.1cm] at (pill\n.west) {\tiny $\int$}; % Tool icon
+        \node[anchor=east, blue!70, xshift=-0.1cm] at (pill\n.east) {\tiny $\equiv$}; % DB icon
+    }
+
+    % Arrows and Labels
+    \draw[->, bend left, thick] (chat.north east) to node[right, blue, font=\tiny\bfseries, align=left] {\textcircled{1} Discuss\\ ideas} (cal.north west);
+    \draw[->, bend left, thick] (cal.south west) to node[left, blue, font=\tiny\bfseries, align=left] {\textcircled{2} Check\\ schedules} (chat.south east);
+    
+    \draw[->, thick] (cal.south) -- node[right, blue, font=\tiny\bfseries, align=left] {\textcircled{3} Prepare\\ agenda} (doc.north);
+    \draw[->, thick] (doc.west) -- node[above, blue, font=\tiny\bfseries] {\textcircled{4} Finalize ideas} (meet.east);
+    \draw[->, thick] (meet.north) -- node[left, blue, font=\tiny\bfseries, align=left, xshift=-0.1cm] {\textcircled{5} Revise\\ agenda} (chat.south);
+
+\end{tikzpicture}
