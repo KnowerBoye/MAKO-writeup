@@ -22,7 +22,7 @@ To define the foundational components of the framework, it is first necessary to
 \begin{figure}[h!]
     \centering
     \input{Figures/agent.tikz} 
-    \caption{The modular architecture of an LLM-based Agent, illustrating the interaction between reasoning core, memory, and tools.}
+    \caption[LLM-Based Agent]{The modular architecture of an LLM-based Agent, illustrating the interaction between reasoning core, memory, and tools.}
     \label{fig:agent_architecture}
 \end{figure}
 
@@ -54,7 +54,7 @@ This shift is predicated on the observation that the collective intelligence of 
 \begin{center}
 \includegraphics[scale=0.56]{Figures/MASExample.png}
 \end{center}
-\caption{Illustration of a Multi-Agent System (MAS) architecture, reproduced from \citet{yang2024llmbasedmultiagentsystemstechniques}}
+\caption[Example MAS]{Illustration of a Multi-Agent System (MAS) architecture, reproduced from \citet{yang2024llmbasedmultiagentsystemstechniques}}
 \label{MASExample}
 \end{figure*}
 
@@ -65,3 +65,132 @@ Despite these advantages, the transition to MAS introduces a significant coordin
 \citet{wang2025largemodelbasedagents} distinguishes between "Horizontal" collaboration, where agents interact as peers in an unstructured manner, and "Vertical" or "Hierarchical" orchestration, where a lead agent or central controller dictates the workflow. Without a formal governing structure, even these collaborative models remain bound by the limitations of the underlying models' ability to maintain a consistent state across fragmented context windows.
 
 Consequently, \citet{valmeekam2023planbenchextensiblebenchmarkevaluating} underscores that while Large Language Models (LLMs) can generate text that mimics the structure of a plan, they consistently fail at logically validated execution. This empirical "planning gap" demonstrates that agent collaboration and orchestration cannot be left to the probabilistic nature of the LLM alone. By shifting the responsibility of workflow logic from the LLM to a structured world model, the framework ensures that every agentic action is not just linguistically plausible, but mathematically verified and fully auditable. This transition effectively moves the system from a paradigm of "stochastic sequencing" to one of "deterministic coordination," providing the reliability required for enterprise-grade applications.
+
+\subsection{Knowledge Graphs}
+
+The final component in this theoretical foundation is the Knowledge Graph (KG), a multi-relational graph consisting of entities as nodes and their interactions as edges \citep{Hogan_2021}. 
+Historically, Knowledge Graphs emerged from the Semantic Web movement and classical symbolic AI, where they were used to provide a structured, machine-readable representation of world knowledge independent of natural language processing. 
+Outside LLMs, KGs are utilized for a variety of applications such as expert systems \citep{jiang2025evolutionknowledgegraphssurvey}, recommendation engines \citep{catherine2016personalized}, and data integration \citep{noy2019industry}, providing a deterministic framework for representing facts in a $G = (V, E, R)$ structure, where $V$ is a set of vertices (entities), $R$ is a set of relation types, and $E \subseteq V \times R \times V$ represents the directed, labeled edges or "triples."
+
+\citep{kejriwal2021knowledge} highlights two primary models that dominate the architectural landscape: Resource Description Framework (RDF) and Labeled Property Graphs (LPG). 
+RDF is a standardized model for data interchange that treats every statement as a "triple" $(subject, predicate, object)$. It is highly interoperable and often used for web-scale data integration using the SPARQL query language. 
+Conversely, Property Graphs allow for a more flexible, internal data structure where both nodes and edges can contain "properties" (key-value pairs). While RDF is rooted in formal logic and global URI standards, Property Graphs are optimized for high-performance traversal and are frequently used in enterprise settings where complex, interconnected metadata must be queried efficiently using languages like Cypher.
+
+The operational utility of a KG is realized through Graph Databases and their associated Traversal Algorithms. 
+Unlike relational databases that rely on expensive "JOIN" operations, graph databases use index-free adjacency, meaning each node effectively points to its neighbors \citep{stegeman2023native}. 
+This allows for complex pathfinding and semantic traversal, which can be mathematically expressed as finding a sequence of nodes $v_0, v_1, \dots, v_n$ such that $(v_i, r, v_{i+1}) \in E$ for each $i$. This capability is crucial for identifying functional dependencies; if a goal state $S_g$ is reachable from a current state $S_c$, a graph traversal algorithm can determine the optimal sequence of agentic transitions $a_1, a_2, \dots, a_k$ required to bridge the gap, ensuring that each step satisfies the pre-conditions defined in the graph.
+
+The integration of Large Language Models (LLMs) and Knowledge Graphs (KGs) has evolved into a bidirectional synergy designed to address the inherent limitations of both technologies, primarily by bridging the gap between probabilistic linguistic intuition and deterministic symbolic logic. 
+As highlighted in foundational surveys \citet{Pan_2024,kau2024combiningknowledgegraphslarge}, this intersection is typically categorized into three paradigms: KG-enhanced LLMs, where structured facts ground generative outputs to mitigate hallucinations; LLM-enhanced KGs, where models automate the labor-intensive tasks of entity extraction and relationship prediction; and Synergized LLM + KG frameworks, where both components interact in a continuous neuro-symbolic feedback loop. 
+Practical applications of these paradigms have demonstrated significant improvements in system reliability; for instance, KG-RAG \citep{sanmartin2024kgragbridginggapknowledge} utilizes the topological structure of a graph to perform multi-hop reasoning that exceeds the capabilities of standard vector-based retrieval, 
+while further research explores the use of KGs to refine tool and agent retrieval mechanisms \citep{nizar2025agentasagraphknowledgegraphbasedtool}, ensuring that the selection of external functions is grounded in a structured understanding of their functional dependencies and semantic constraints. 
+Specialized techniques continue to refine this integration, such as the "Chain-of-Knowledge" (CoK) framework \citep{zhang2024chainofknowledgeintegratingknowledgereasoning}, which allows LLMs to learn structured reasoning paths directly from KGs to internalize symbolic logic, and the "Self-Refinement-Enhanced Knowledge Retrieval" approach, which introduces an iterative loop where the LLM critiques its own retrieved facts against a KG to eliminate contradictions \citep{niu2024mitigatinghallucinationslargelanguage}. 
+Additionally, advancements in "Question-guided KG Re-scoring and Injection" \citep{zhang-etal-2024-question} optimize Question Answering (KGQA) by dynamically re-weighting the relevance of graph nodes based on the specific linguistic context of the query, collectively highlighting a shift from passive data retrieval toward active, structural reasoning where the Knowledge Graph serves as the definitive logical anchor for generative AI.
+
+\section{Review of Related Works}
+This section reviews the evolution of Multi-Agent Collaboration, focusing on the transition from heuristic-driven interactions to formal Structured Orchestration Mechanisms. It narrows the analysis to Dynamic Structured Orchestration, where adaptive coordination is achieved in complex, non-linear environments. These works highlight the "planning gap" in current systems and the necessity for the factually grounded architectures proposed in this framework.
+
+\subsection{Multi-Agent Orchestration}
+Let's begin by adopting multi-agent system formalism  from \citet{guo2024largelanguagemodelbased,zhu2025agentic}.
+An agentic system $\mathcal{S}$ is defined as a four-tuple $\mathcal{S} = \langle \mathcal{A}, \mathcal{E}, \mathcal{C}, \Omega \rangle$, where $\mathcal{A} = \{a_1, \dots, a_n\}$ is a set of $n \ge 1$ agents, $\mathcal{E}$ is the shared environment, $\mathcal{C}$ is the communication topology, and $\Omega$ is the orchestration policy. Systems where $|\mathcal{A}|=1$ are Single-Agent Systems (SAS), while $|\mathcal{A}|>1$ are Multi-Agent Systems (MAS).
+Each agent $a_i \in \mathcal{A}$ is a tuple $a_i = \langle \Phi_i, \mathcal{X}_i, \mathcal{M}_i, \pi_i \rangle$, consisting of a reasoning policy $\Phi_i$ (typically an LLM), an action space $\mathcal{X}_i = \{ \text{ToolCall}(t, \theta) : t \in \mathcal{T}, \theta \in \Theta_t \}$, internal memory $\mathcal{M}_i$, and a decision function $\pi_i : \mathcal{H} \to \mathcal{X}_i$ mapping history $\mathcal{H}$ to actions.
+At timestep $t$, the execution logic follows:
+$$\alpha_{i,t} = \pi_i(h_{i,t})$$
+$$o_{i,t} = \mathcal{E}(\alpha_{i,t})$$
+$$h_{i,t+1} = h_{i,t} \oplus (\alpha_{i,t}, o_{i,t})$$
+The history $h_{i,t}$ is initialized as $\{s_0\}$ and updated iteratively, subject to a maximum context constraint $|h_{i,t+1}| \le K$. Communication in MAS is facilitated by $\Omega$ through message passing between agents.
+
+To categorize the structural variations in multi-agent coordination, \citet{kim2025sciencescalingagentsystems} establishes a formal distinction between communication (the mechanical passing of messages) and coordination (the strategic direction of agent activities). 
+This distinction is operationalized through the definition of a communication topology $C$, which governs the information flow patterns within an agent system $\mathcal{S}$. 
+The paper identifies four primary topological configurations:
+\begin{itemize}
+    \item \textbf{Independent} ($C = \emptyset$): Characterized by a total absence of inter-agent communication, where agents operate in isolation.
+    
+    \item \textbf{Centralized} ($C = \{(a_{\text{orch}}, a_i) : \forall i\}$): Information flow is strictly restricted to an orchestrator-to-agent star pattern.
+    
+    \item \textbf{Decentralized} ($C = \{(a_i, a_j) : \forall i, j, i \neq j\}$): An all-to-all topology allowing for peer-to-peer information fusion.
+    
+    \item \textbf{Hybrid} ($C = C_{\text{centralized}} \cup C_{\text{peer}}$): A composite structure that combines hierarchical oversight with limited lateral peer-to-peer exchange.
+\end{itemize}
+These topologies lead to four specific MAS Configurations, each presenting unique trade-offs between parallelization, coordination depth, and computational overhead. An Independent MAS ($A = \{a_1, \dots, a_n\}, \Omega = synthesis\_only$) maximizes parallelization but offers minimal coordination, making it suitable for ensemble-style reasoning with a complexity of $O(nk)$. 
+Conversely, a Centralized MAS ($A = \{a_{orch}, a_1, \dots, a_n\}, \Omega = hierarchical$) stabilizes reasoning through hierarchical verification but introduces a central bottleneck, scaling at $O(rnk)$ across $r$ coordination rounds. 
+In a Decentralized MAS ($A = \{a_1, \dots, a_n\}, \Omega = consensus$), agents engage in $d$ sequential debate rounds to reach a collective agreement, incurring a memory complexity of $O(dnk)$ as each agent maintains its own debate history. 
+Finally, the Hybrid MAS ($\Omega = hierarchical + lateral$) attempts to inherit the control of a central orchestrator while maintaining the flexibility of lateral peer exchanges, represented by the complexity $O(rnk + pn)$. 
+By formalizing these architectures, the research enables a structural ablation of coordination mechanics, allowing performance gains to be attributed to specific topological designs rather than generic multi-agent effects.
+
+\begin{figure*}[ht]
+\centering
+\includegraphics[width=\textwidth, keepaspectratio]{Figures/agent_scaling.png}
+\caption[Empirical Performance of Agent Scaling across Architectures]{Empirical Performance of Agent Scaling across Architectures. (Adapted from \citet{kim2025sciencescalingagentsystems}). Average performance (\%) across four agentic benchmarks improves consistently with increasing model Intelligence Index across three major LLM families (OpenAI, Google, and Anthropic). 
+Single Agent System (SAS) serves as the reference trajectory, while Multi-Agent System (MAS) variants—Centralized, Decentralized, Independent, and Hybrid—reveal distinct scaling behaviors. Percentage deltas (e.g., +8.1\%, –4.6\%) indicate the relative performance change of the best-performing MAS variant compared to the SAS baseline at a corresponding Intelligence Index. 
+The data suggests that centralized and hybrid coordination generally yield superior scaling efficiency, amplifying capability gains more effectively than individual model scaling.}
+\label{agent_scalling}
+\end{figure*}
+
+\citet{tran2025multiagentcollaborationmechanismssurvey} also identifies a multi-dimensional taxonomy consisting of Collaboration Types (Cooperation, Competition, Coopetition), Strategies (Rule-based, Role-based, Model-based),Communication Structures (Centralized, Decentralized, Hierarchical) and Coordination and Orchestration (Static , Dynamic Architectures). 
+However, the primary focus of this project is on Coordination and Orchestration, which is defined as how collaboration channels are created, ordered, and characterized, effectively forming the backbone of multi-agent interactions.
+
+\textbf{Static architectures} rely on domain-specific knowledge and predefined rules to establish fixed collaboration channels. This approach ensures that interactions align with rigid requirements, often leveraging sequential connections (chaining) where the output of one agent ($y_i$) feeds into the next ($y_{i+1}$) alongside the initial input ($x_{collab}$):
+$$y_{i+1} = y_i \parallel x_i \parallel x_{collab}$$
+By utilizing fixed workflows, systems like MapCoder \citep{islam2024mapcodermultiagentcodegeneration} (program synthesis), MACRec \citep{Wang_2024} (recommendations), and specialized Literary Translation frameworks like \citet{wu2025perhapshumantranslationharnessing} can emulate professional human pipelines. While highly effective for predictable tasks involving recall, planning, and debugging, these architectures lack the flexibility to adapt to novel or evolving task requirements outside their predefined schema.
+
+In contrast, \textbf{Dynamic Architectures} are designed for high adaptability, utilizing Management Agents or adaptive mechanisms to assign roles and define collaboration channels in real-time. This allows the system to respond to the unique nuances of each input rather than following a static script. 
+A prominent implementation of this flexibility is the graph-based orchestration mechanism that an Orchestrator agent dynamically constructs a Directed Acyclic Graph (DAG) where nodes represent discrete tasks and edges define their functional dependencies \citep{gabriel2024advancingagenticsystemsdynamic}. This structure enables the system to execute sub-tasks in a optimized parallel or sequential order as dictated by the input. By employing a Delegator agent to consolidate results from all completed nodes, dynamic architectures significantly enhance responsiveness and scalability for complex, multi-step queries that require a non-linear execution sequence.
+
+The analysis of these paradigms reveals that there is no single, unifying definition or classification for Multi-Agent Systems (MAS). Instead, a system’s identity is fluid, often exhibiting multiple characteristics simultaneously based on specific architectural requirements. By mapping popular frameworks to these theoretical models, we can better understand how theoretical "backbones" manifest in practical engineering.
+
+As illustrated in the table below, example design patterns in the agentic ecosystem can be cross-referenced against the previously discussed classifications:
+\begin{table}[h]
+\centering
+\resizebox{0.95\linewidth}{!}{$
+\begin{array}{|l|c|c|c|}
+\hline
+\textbf{Pattern} & \textbf{AutoGen Group Chat} & \textbf{LangGraph / AutoGen Graph} & \textbf{CrewAI} \\
+\hline
+\textbf{Collaboration} & \text{Cooperative} & \text{Cooperative} & \text{Cooperative} \\
+\hline
+\textbf{Strategy} & \text{Role-based} & \text{Model-based} & \text{Role-based} \\
+\hline
+\textbf{Structure} & \text{Centralized} & \text{Decentralized} & \text{Hierarchical} \\
+\hline
+\textbf{Coordination} & \text{Dynamic} & \text{Dynamic} & \text{Static/Dynamic} \\
+\hline
+\textbf{Topology \citep{kim2025sciencescalingagentsystems}} & \text{Hybrid} & \text{Independent} & \text{Centralized} \\
+\hline
+\end{array}
+$}
+\caption{Mapping of Multi-Agent patterns to theoretical classifications.}
+\end{table}
+
+The fluidity of these classifications is best exemplified by AutoGen's Group Chat pattern \citep{autogen_groupchat_pattern}, which is cooperative and role-based but fluctuates between centralized and decentralized structures depending on the presence of a manager agent. 
+While \citet{kim2025sciencescalingagentsystems} would classify this as a Hybrid topology, its orchestration remains inherently Dynamic as turn-taking is determined in real-time. 
+Similarly, systems built on LangGraph or AutoGen Graph patterns are characterized by dynamic orchestration, yet they may operate under an Independent communication topology when agents interact through a shared state rather than direct messaging. 
+Ultimately, \citet{derouiche2025agenticaiframeworksarchitectures} highlights the features of frameworks like LangChain, LangGraph, AutoGen, and CrewAI that can be used to build systems exhibiting a variety of the characterizations discussed.
+
+\subsection{Shift Towards Structured But Dynamic Orchestration}
+This paradigm bridges the gap between deterministic control and agentic flexibility by employing explicitly defined control flows that remain highly adaptable rather than following a static, linear script. By hybridizing structured logic with real-time decision-making, these frameworks ensure that multi-agent interactions are both architecturally grounded and responsive to evolving task requirements.
+To explore the shift toward structured yet dynamic orchestration, we analyze how recent frameworks transition from static chains to complex, topology-aware coordination. These works move beyond simple message passing, instead treating the multi-agent interaction space as a programmable and adaptable graph.
+
+ The \textbf{Graph of Agents (GoA)} framework \citep{joo2025graphagentsprincipledlong}, for instance, operates through a layered information fusion architecture where a query is decomposed and processed in parallel by an initial tier of agents. These preliminary outputs are then funneled into subsequent layers of aggregator agents that resolve contradictions and synthesize a unified response. The mechanical core of GoA is its topology-aware scoring system, which assigns dynamic weights to each agent’s contribution during the fusion process, ensuring that the most rational and contextually relevant reasoning paths are prioritized in the final output.
+
+Advancing this adaptability, \textbf{DyTopo} \citep{lu2026dytopodynamictopologyrouting} introduces a highly specialized semantic routing mechanism that reconfigures the communication network for every unique task. Unlike frameworks with fixed edges, DyTopo treats the multi-agent system as a latent pool of capabilities, employing a Topology Manager to analyze the semantic intent of a query and predict the optimal functional dependencies between agents. By calculating the semantic similarity and task-relevance of potential agent pairings, the system dynamically activates or prunes communication edges in real-time. This precision routing eliminates the "noise" and redundant token usage typical of all-to-all broadcast models, ensuring that information only flows through edges that provide measurable utility to the sub-task at hand.
+
+In the context of large-scale coordination, \textbf{MacNet} \citep{qian2025scalinglargelanguagemodelbased} organizes agents into specialized topological neighborhoods within a Directed Acyclic Graph (DAG). This framework utilizes a structural routing protocol that directs the flow of state information based on the hierarchical and functional position of each agent in the network. A key technical feature of MacNet is its use of topological persistence, where the system records and optimizes high-performing routing paths across the DAG over time, effectively allowing the architecture to "learn" more efficient coordination patterns for recurring problem types. This bridges the gap between the rigid constraints of a central orchestrator and the chaotic overhead of purely decentralized debate.
+
+
+
+Finally, most recently \citet{benkhaled2026g2cp} introduces \textbf{G2CP (Graph To Communication Protocol)} framework functions as an orchestration compiler that separates the high-level task logic from the execution-level interaction rules. It begins by generating a graph-based plan of the user’s goal and subsequently translates that graph into a formal communication protocol a deterministic set of "rules of engagement" that define the specific states, turn-taking logic, and data schemas required for the agents to collaborate. By decoupling the "what" (the graph) from the "how" (the protocol), G2CP allows for a hybrid state where the global objective is structurally anchored, but the local agent interactions remain fluid and adaptive to real-time feedback. Collectively, these advancements highlight a move toward topology-aware intelligence, where the programmable geometry of the agent network becomes as critical to success as the underlying language models.
+
+
+\subsection{Extending KG Driven Discovery to MAS}
+SAP an Enterprise application software company utilizes Knowledge Graphs (KGs) for API discovery by enriching raw API specifications with semantic metadata and business-process context, moving orchestration beyond the limitations of hard-coded scripts \citep{deeplearningai_kg_api_discovery}. This implementation demonstrates that KGs serve as a foundational "source of truth" for the dynamic, deterministic sequencing of complex tasks. By traversing the ontological relationships within the graph, an orchestrator can perform real-time path-finding to resolve multi-step goals based on verifiable functional dependencies rather than probabilistic generative paths.
+
+This proves that Knowledge Graphs are highly effective for the dynamic sequencing of diverse data types and tasks, ensuring that every transition in a multi-hop workflow is factually grounded and logically valid. Our proposed system seeks to adopt this approach for multi-agent orchestration, leveraging the KG to provide the structural rigor and "Just-in-Time" adaptability required for autonomous, enterprise-grade coordination.
+
+\section{Conclusion}
+The analysis of current literature reveals a critical trade-off between architectural rigor and operational flexibility. While graph-based frameworks like MacNet and Graph of Agents (GoA) provide necessary structural constraints through DAGs and layered topologies, their primary gap lies in a tendency to rely on predefined sequencing for specific workflows. By requiring the explicit mapping of node transitions or hierarchical tiers, these systems can become brittle or lose their truly "dynamic" nature when faced with tasks that deviate from their established schema. Similarly, even in more adaptive protocols like G2CP and DyTopo, the logic used to traverse these structures often fluctuates between rigid hard-coding and probabilistic inference.
+
+Future study must address the integration of deterministic symbolic grounding that allows for real-time adaptability without requiring exhaustive manual mapping for every possible scenario. By adopting a Knowledge Graph-based orchestration framework, the proposed system treats the KG as a fluid "source of truth" rather than a fixed flowchart. In this paradigm, the Knowledge Graph serves as an ontological map where nodes represent agentic capabilities and edges define their formal functional dependencies. 
+This shift allows the orchestrator to dynamically query the KG to construct valid, context-specific execution paths on the fly. This ensures that the system's "backbone" remains factually grounded in a verifiable symbolic structure, providing the architectural rigor of a DAG with the unscripted flexibility required for complex, autonomous coordination.
+
+
