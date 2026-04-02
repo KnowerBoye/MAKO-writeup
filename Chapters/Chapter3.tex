@@ -1,81 +1,218 @@
-% Chapter 1
+\chapter{METHODOLOGY AND SYSTEM DESIGN}
+\label{Chapter3}
 
-\chapter{CHAPTER THREE TITLE GOES HERE} % Main chapter title
+\section{Introduction}
+This chapter details the methodology and system design that guided the development of Mako, a novel agent orchestration framework anchored by a knowledge graph. Designing a system capable of managing autonomous agents requires moving beyond simple linear programming; it necessitates an architecture that can handle ambiguity, manage state dynamically, and route tasks intelligently. To that end, this chapter outlines the research design and the architectural framework that empower Mako to decompose complex, ambiguous user goals, evaluate agent capabilities, and execute tasks in a highly coordinated, asynchronous manner.
 
-\label{Chapter3} % For referencing the chapter elsewhere, use \ref{Chapter1} 
+Furthermore, this section presents the structural design of the Neo4j-backed knowledge graph, which serves a dual purpose as both the system’s shared memory and its state management layer. The interaction protocols between specialized agents are explored, detailing how decoupled communication prevents system bottlenecks. Finally, the chapter outlines the specific tools and technologies selected for implementation, maps out the step-by-step system workflows, and defines the rigorous evaluation metrics utilized to assess the framework's performance, task completion accuracy, and overall orchestration efficiency.
 
-\section{FIRST SECTION TITLE GOES HERE}
+\section{Research Design}
+This study adopts a system development and design science research approach, focusing heavily on the architectural engineering, implementation, and empirical evaluation of a multi-agent orchestration framework. The primary motivation driving this methodological choice is the inherent limitation of single Large Language Model (LLM) deployments. While individual LLMs possess vast generalized knowledge, they frequently struggle to handle complex, multi-step, or highly specialized problems reliably without losing context or hallucinating.
 
+To resolve this, the core philosophy of the Mako framework is to decentralize execution while centralizing orchestration, utilizing a Knowledge Graph (KG) as a persistent shared memory and relationship mapper. Traditional programmatic workflows rely on rigid, hard-coded pathways that fail when presented with edge cases. In contrast, Mako is designed as a dynamic, graph-based architecture. When a user submits a natural language goal, the system does not force it through a predefined script; instead, it dynamically decomposes the objective into a Directed Acyclic Graph (DAG) of discrete tasks. It then maps these tasks to the optimal agents based on a real-time assessment of their capabilities, availability, and trust levels.
 
-\subsection{Your subsection}
+This graph-centric approach was selected because knowledge graphs naturally and intuitively model the complex, many-to-many relationships inherent in a workforce of AI agents. By externalizing the state management and relationship tracking to a robust graph database (Neo4j), the individual agents can remain entirely stateless. They wake up, execute their specific task using the context provided, and shut down. Meanwhile, the central orchestrator maintains a persistent, global visibility over task dependencies, agent workloads, and the evolving state of the user's overarching goal.
 
+\section{System Architecture}
+To ensure scalability, maintainability, and the flexibility to seamlessly integrate new agent capabilities in the future, the architecture of the Mako orchestration framework is strictly modular. The design separates the cognitive planning layer, the routing logic, the execution environment, and the data storage mechanisms. This separation of concerns is realized through five primary interconnected components:
 
+\begin{enumerate}
+    \item \textbf{The User Interface and Entry Point:} The production entry point of the system operates via an interactive Command Line Interface (CLI). This component is responsible for capturing the initial state, booting the connection to the knowledge graph, and capturing natural language goals from the user. It also serves as the real-time feedback loop, translating backend graph node statuses, orchestration decisions, and agent memory logs into formatted, human-readable output.
 
+    \item \textbf{The Orchestrator Layer:} Acting as the central nervous system of the framework, the Orchestrator manages the complete lifecycle of a user’s goal. It does not execute tasks itself; rather, it coordinates the flow of information between the planner, the reasoning engine, and the executor. It monitors the DAG of tasks, ensuring that dependencies are strictly respected and that no task is triggered before its prerequisite data is available in the shared memory.
 
+    \item \textbf{The Planner Component:} The Planner is the strategic core of the system. It is tasked with ingesting complex, high-level user goals and applying cognitive breakdown strategies to decompose them into discrete, manageable sub-tasks. During this phase, it generates the necessary \texttt{Task} nodes and formally establishes the \texttt{DEPENDS\_ON} relationships that dictate the execution timeline.
 
+    \item \textbf{The Reasoning and Routing Engine:} Once tasks are generated, the Reasoning Engine evaluates them against the current pool of active agents. It translates task requirements into complex graph queries, scanning the Neo4j database to match tasks to agents. This matching process is multidimensional, taking into account the required capabilities, the trust thresholds necessary for the task, and the current operational load of the available agents to prevent bottlenecks.
 
+    \item \textbf{The Executor Layer:} The Executor is the operational arm of the framework. It handles the instantiation of tasks by formatting precise prompts, injecting the necessary historical context retrieved from the knowledge graph, and making the API calls to the underlying LLM providers. It also handles error catching and output validation before passing the results back to the Orchestrator.
 
+    \item \textbf{The Knowledge Graph (Data Layer):} Operating entirely in the background, the Neo4j database acts as the single source of truth for the entire framework. It persistently stores all entities—ranging from Agent profiles to discrete Tasks and Capabilities—and maps their dynamic, shifting relationships in real-time as the system operates.
+\end{enumerate}
 
+\begin{figure}[ht!]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{Figures/ArchitectureDiagram.png} % Uncomment and update path
+    \caption{Overall System Architecture illustrating the User CLI feeding into the Orchestrator, communicating bi-directionally with the Planner, Executor, Reasoning Engine, and the Neo4j Knowledge Graph.}
+    \label{fig:architecture}
+\end{figure}
 
+\section{Knowledge Graph Design}
+The integration of a formalized Knowledge Graph is the defining, innovative characteristic of the Mako orchestration framework. In traditional multi-agent systems, agents often pass state back and forth through complex, fragile message queues or bloated JSON objects. In Mako, the knowledge graph serves simultaneously as the system's routing directory and its shared memory space. The schema was specifically engineered to map the ontology of an AI workforce, treating agents, skills, and memories as interconnected nodes.
 
+\subsection{Graph Structure: Nodes}
+The graph database utilizes specific, typed node labels to categorize the entities operating within the system. This strict typing allows the Reasoning Engine to filter and query the database with high efficiency.
 
+\begin{table}[ht!]
+    \centering
+    \caption{Knowledge Graph Node Types}
+    \label{tab:node_types}
+    \begin{tabular}{|p{0.2\textwidth}|p{0.75\textwidth}|}
+        \hline
+        \textbf{Node Label} & \textbf{Description} \\
+        \hline
+        \textbf{Agent} & Represents an autonomous AI actor within the system, ranging from orchestrators to specialized worker agents. \\
+        \hline
+        \textbf{Capability} & Defines specific, actionable skills an agent possesses, such as \texttt{web\_search}, \texttt{data\_analysis}, or \texttt{summarization}. \\
+        \hline
+        \textbf{Task} & Represents discrete, actionable units of work generated dynamically by the Planner Component. \\
+        \hline
+        \textbf{State} & Functions as the memory storage, holding agent outputs and contextual data for future retrieval. \\
+        \hline
+        \textbf{Message} & Acts as an execution log, recording inter-agent communications, system alerts, and error states. \\
+        \hline
+        \textbf{Constraint} & Represents operational boundaries or rules governing agent behavior, such as specific safety or trust limitations. \\
+        \hline
+        \textbf{Pipeline} & Represents the macro-level view of a multi-step execution workflow, grouping related tasks together. \\
+        \hline
+    \end{tabular}
+\end{table}
 
+\subsection{Graph Structure: Relationships (Edges)}
+Nodes in isolation offer little value; the true power of the framework lies in the edges connecting them. To enable the Reasoning Engine to make intelligent, context-aware routing decisions, the graph relies on strictly defined directional relationships.
 
+\begin{table}[ht!]
+    \centering
+    \caption{Knowledge Graph Relationship Types}
+    \label{tab:relationship_types}
+    \begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.35\textwidth}|}
+        \hline
+        \textbf{Relationship Type} & \textbf{Source Node $\rightarrow$ Target Node} & \textbf{Description} \\
+        \hline
+        \textbf{HAS\_CAPABILITY} & Agent $\rightarrow$ Capability & Indicates that an agent is equipped and authorized to perform a specific skill. \\
+        \hline
+        \textbf{REQUIRES\_CAPABILITY} & Task $\rightarrow$ Capability & Defines the prerequisite skill an agent must have to successfully execute the mapped task. \\
+        \hline
+        \textbf{ASSIGNED\_TO} & Agent $\rightarrow$ Task & A dynamic edge indicating the current active workload and assignment of a specific agent. \\
+        \hline
+        \textbf{DEPENDS\_ON} & Task $\rightarrow$ Task & Enforces strict execution ordering; ensuring a task cannot be initiated until its dependency is marked complete. \\
+        \hline
+        \textbf{HOLDS\_STATE} & Agent $\rightarrow$ State & Links an agent to its historical context, allowing it to "remember" past outputs and decisions. \\
+        \hline
+        \textbf{GOVERNED\_BY} & Agent $\rightarrow$ Constraint & Applies strict security protocols, operational limits, or trust boundaries to specific agents. \\
+        \hline
+    \end{tabular}
+\end{table}
 
+The state of these edges is highly fluid. When the Planner decomposes a new user goal, it creates a web of new \texttt{Task} nodes connected by \texttt{REQUIRES\_CAPABILITY} edges. Milliseconds later, the Reasoning engine traverses the graph to find \texttt{Agent} nodes connected via \texttt{HAS\_CAPABILITY} to those exact skills. Upon execution, the Orchestrator permanently records the interaction by drawing \texttt{ASSIGNED\_TO} and \texttt{HOLDS\_STATE} edges, creating an auditable trail of how the system solved the problem.
 
+\section{Agent Design}
+Mako leverages a heterogeneous multi-agent design philosophy. Rather than utilizing a single, massive prompt to force an LLM to act as a generalist, the framework instantiates different agents with highly specialized roles, distinct operational capabilities, and varying trust levels. This mimics human organizational structures, where specialists handle specific tasks under the guidance of a project manager.
 
+\subsection{Agent Roles and Capabilities}
+To validate the framework, the system is seeded with a baseline roster of specialized agents designed to handle diverse workflows:
 
+\begin{enumerate}
+    \item \textbf{The Orchestrator Agent (\texttt{orch-001}):} Acting as the primary manager, this agent operates with a maximum trust level of 1.0. It possesses macro-planning capabilities and is strictly responsible for overseeing the execution of the user's goal, rather than doing the granular work itself.
+    \item \textbf{The Research Agent (\texttt{agent-r1}):} Specialized in broad information retrieval and external data validation. It holds the \texttt{web\_search} capability and operates with a trust level of 0.8, reflecting the inherent unpredictability of querying external web sources.
+    \item \textbf{The Summarization Agent (\texttt{agent-s1}):} Engineered to synthesize large volumes of text and extract key metrics. It holds the \texttt{summarization} capability and operates with a trust level of 0.8, ensuring it relies strictly on provided context rather than hallucinating external facts.
+    \item \textbf{The Coder Agent (\texttt{agent-c1}):} A highly specialized actor designed for technical tasks, script generation, and code execution. Because executing arbitrary code carries inherent system risks, it holds the \texttt{code\_execution} capability but operates under a stricter trust level of 0.75.
+\end{enumerate}
 
+\subsection{Agent Interaction Model}
+A critical design choice in the Mako framework is that agents do not communicate via direct point-to-point APIs. Direct communication often leads to tightly coupled systems that break when a single agent fails or times out. Instead, Mako agents communicate entirely through the Knowledge Graph.
 
+For example, when the \texttt{Research Agent} completes a targeted web search, it does not send the data directly to the next agent. Instead, its output is logged into a \texttt{State} node and linked to the overarching task graph. When the Orchestrator subsequently wakes up the \texttt{Summarization Agent}, the Executor queries the graph, retrieves that \texttt{State} node, and safely injects the data into the Summarizer's context window. This creates a highly decoupled, asynchronous interaction model that is resilient to timeouts, scalable, and easy to audit.
 
+\section{Orchestration Mechanism}
+The orchestration mechanism is the underlying procedural logic—the system's heartbeat—that dictates exactly how user goals transition from abstract concepts to completed outputs.
 
+\subsection{Task Allocation and Decision Flow}
+The lifecycle of a goal within Mako follows a rigorously defined pipeline:
 
+\begin{enumerate}
+    \item \textbf{Goal Ingestion:} The system captures a natural language request from the user (e.g., "Search for recent AI orchestration papers and summarize their key findings").
+    \item \textbf{Task Decomposition:} The Planner intercepts the request, applying LLM reasoning to break it into a logical DAG of subtasks. It identifies that this requires two distinct phases:
+    \begin{itemize}
+        \item \textit{Task 1:} "Search AI orchestration papers" (Requires: \texttt{web\_search}, Output Key: \texttt{papers})
+        \item \textit{Task 2:} "Summarize the retrieved papers" (Requires: \texttt{summarization}, Depends On: Task 1)
+    \end{itemize}
+    \item \textbf{Dependency Resolution:} The Orchestrator continually queries the graph for tasks that have no outstanding \texttt{DEPENDS\_ON} relationships. It identifies Task 1 as ready for execution.
+    \item \textbf{Intelligent Agent Routing:} The Reasoning component takes Task 1 and queries the Neo4j graph for any active agents possessing the \texttt{web\_search} capability and an adequate trust score. It successfully matches the task to \texttt{agent-r1}.
+    \item \textbf{Execution and Aggregation:} The Executor packages Task 1 into a prompt and passes it to \texttt{agent-r1}. Upon completion, the outputs are captured, stored in a local accumulator (\texttt{accumulated\_outputs["papers"]}), and permanently written to a new \texttt{State} node in the graph.
+    \item \textbf{Workflow Continuation:} The Orchestrator marks Task 1 as successfully completed, which satisfies the dependency for Task 2, unlocking it. Task 2 is then routed to \texttt{agent-s1}, with the Executor automatically fetching the \texttt{papers} output from the graph to provide context.
+    \item \textbf{Final Aggregation:} Once the Orchestrator verifies that all nodes in the DAG have reached a completed state, the final synthesized output is formatted. It is then returned to the user alongside rich metadata, including execution duration, agent load statistics, and an aggregate confidence score.
+\end{enumerate}
 
+\section{Implementation Tools and Technologies}
+Moving from conceptual design to functional software required a modern, robust technology stack. The tools chosen for the Mako framework prioritize graph processing efficiency, seamless AI integration, and high-performance execution.
 
+\begin{table}[ht!]
+    \centering
+    \caption{Development Tools and Technologies}
+    \label{tab:tools_technologies}
+    \begin{tabular}{|p{0.25\textwidth}|p{0.7\textwidth}|}
+        \hline
+        \textbf{Tool / Technology} & \textbf{Purpose / Justification} \\
+        \hline
+        \textbf{Python 3.10+} & Serves as the primary backend language. Python was selected for its unparalleled AI/Machine Learning ecosystem, extensive library support, and native ability to handle complex asynchronous data manipulation. \\
+        \hline
+        \textbf{Neo4j} & The core graph database utilized for the Knowledge Graph. Neo4j was chosen over traditional relational databases due to its native Cypher query language, which is specifically optimized for deep pathfinding and multi-hop relationship mapping. \\
+        \hline
+        \textbf{Pydantic} & Implemented as the schema and validation layer. Pydantic enforces strict data contracts between the unpredictable outputs of the LLMs and the rigid requirements of the Python backend, preventing malformed data from crashing the system. \\
+        \hline
+        \textbf{LLM APIs (OpenAI/Anthropic)} & These APIs act as the cognitive engines for the agents. They power the higher-order reasoning required by the Planner, the Executor, and the individual specialized workers. \\
+        \hline
+        \textbf{Neo4j Python Driver} & The bridge component that facilitates seamless, secure execution of Cypher queries, pushing updates from the orchestration backend directly into the graph database. \\
+        \hline
+    \end{tabular}
+\end{table}
 
+\section{System Workflow}
+The end-to-end operation of Mako is not left to chance; it follows a strict, predictable execution pipeline designed to ensure maximum reliability, traceability, and error recovery.
 
+\begin{enumerate}
+    \item \textbf{System Boot Sequence (\texttt{main.py $\rightarrow$ boot()}):} Upon startup, the framework establishes a secure connection to the Neo4j instance. It runs a health check, verifies the graph schema, and if the database is found empty, automatically seeds the environment with the initial required agents, baseline capabilities, and systemic constraints.
+    \item \textbf{Input Capture:} The CLI enters a listening state, awaiting user input.
+    \item \textbf{Cognitive Planning Phase (\texttt{planner.py}):} The user's input is routed to the planning LLM accompanied by a strict system prompt. The LLM processes the goal and returns a highly structured JSON object representing the DAG of required tasks.
+    \item \textbf{Graph Population (\texttt{orchestrator.py}):} The system parses the JSON and instantiates the tasks as physical nodes within the Neo4j graph, establishing the critical \texttt{REQUIRES\_CAPABILITY} and \texttt{DEPENDS\_ON} edges that will guide execution.
+    \item \textbf{The Asynchronous Execution Loop:} The core loop begins:
+    \begin{itemize}
+        \item The system scans for unlocked, available tasks.
+        \item The Reasoning module (\texttt{reasoning.py}) routes the task to the optimal agent.
+        \item The Executor module (\texttt{executor.py}) runs the task and captures the text and metadata outputs.
+        \item The Database module (\texttt{database.py}) updates the task state to "completed" in the graph and logs the new \texttt{State} node.
+    \end{itemize}
+    \item \textbf{Result Delivery:} Once the loop concludes, the orchestrator formats the aggregated results into a human-readable format and renders them to the CLI, providing the user with both the answer and the metadata detailing how the system arrived at it.
+\end{enumerate}
 
-%\section{Software Development Process Model}
-%Some two figures
-%
-%\begin{figure}[ht!]
-%	\centering
-%	\includegraphics[width =6cm, height=6cm, keepaspectratio]{ADB.jpg}
-%	\caption{UMaT Crest}\label{umat}
-%\end{figure}
-%
-%
-%\begin{figure}[th]
-%	\centering
-%	\includegraphics{Figures/Electron}
-%	%\decoRule
-%	\caption[An Electron]{An Electron (Artist's Impression).}
-%	\label{fig:Electron}
-%\end{figure}
-%
-%
-%\section{Feasibility Studies}
-%Some table
-%\begin{table}
-%	\begin{tabular}{|c|c|c|}
-%		\hline
-%		\rule[-1ex]{0pt}{2.5ex}  &  &  \\
-%		\hline
-%		\rule[-1ex]{0pt}{2.5ex}  &  &  \\
-%		\hline
-%		\rule[-1ex]{0pt}{2.5ex}  &  &  \\
-%		\hline
-%		\rule[-1ex]{0pt}{2.5ex}  &  &  \\
-%		\hline
-%		\rule[-1ex]{0pt}{2.5ex}  &  &  \\
-%		\hline
-%	\end{tabular}
-%\caption{Some table}
-%\end{table}
-%
-%
-%\section{Requirement Gathering and Analysis}
-%
-%\subsection{\normalfont Functional and Non-Functional Requirements}
-%\subsubsection{Subsection in Italics}
+\begin{figure}[ht!]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{Figures/WorkflowFlowchart.png} % Uncomment and update path
+    \caption{System Workflow Flowchart illustrating the sequential steps from System Boot, through the Execution Loop, to Result Delivery.}
+    \label{fig:workflow}
+\end{figure}
 
+\section{System Evaluation and Testing}
+To ensure the proposed Mako framework successfully meets its theoretical objectives, a rigorous, multi-tiered evaluation methodology was established. The system is continuously evaluated based on its functional capability to decompose complex tasks accurately, as well as the operational efficiency and safety of its multi-agent interactions.
+
+\subsection{Evaluation Metrics}
+To move beyond subjective observation, the following quantifiable metrics are utilized to benchmark the performance of the framework:
+
+\begin{table}[ht!]
+    \centering
+    \caption{System Evaluation Metrics}
+    \label{tab:evaluation_metrics}
+    \begin{tabular}{|p{0.2\textwidth}|p{0.45\textwidth}|p{0.3\textwidth}|}
+        \hline
+        \textbf{Metric} & \textbf{Description} & \textbf{Target / Success Criteria} \\
+        \hline
+        \textbf{Task Completion Rate} & The percentage of user goals that are successfully decomposed, routed, and fully executed without triggering a systemic failure or timeout. & $>$ 90\% completion rate on standard, multi-step user requests. \\
+        \hline
+        \textbf{Routing Accuracy} & The frequency with which the Reasoning engine successfully selects the correct agent for a specific task based solely on the required capabilities. & 100\% adherence to capability constraints (zero misrouted tasks). \\
+        \hline
+        \textbf{System Response Time} & The total end-to-end duration from the moment of user prompt submission to the generation of the final synthesized result. & Minimized systemic overhead, ensuring the primary bottleneck is solely the unavoidable LLM network latency. \\
+        \hline
+        \textbf{Graph Integrity} & A measure of database health; checking the consistency of the Neo4j state following complex execution pipelines to ensure no orphaned nodes or logic breaks exist. & 0\% orphaned states or broken dependency chains during execution logging. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Testing Procedures}
+To capture data against the aforementioned metrics, the system undergoes three distinct phases of testing:
+
+\begin{enumerate}
+    \item \textbf{Unit Testing:} Individual software components (the Planner, the Reasoning Engine, the Executor) are tested in isolation. To prevent API latency from skewing the results, these tests utilize mocked, static LLM responses. This ensures deterministic behavior and verifies that the underlying Python logic is mathematically sound.
+    \item \textbf{Integration Testing:} The critical interaction between the Python orchestration layer and the Neo4j database is tested under load. These tests verify that node creation, complex edge mapping, and real-time state updates occur flawlessly without deadlocks or race conditions.
+    \item \textbf{End-to-End Functional Testing:} The fully assembled system is subjected to complex, highly ambiguous, multi-layered prompts (e.g., "Analyze current artificial intelligence tech trends, write a comprehensive summary report, and format the final output as a valid HTML document"). This holistic testing evaluates the system's ability to plan, route, and execute a multi-agent workflow seamlessly from start to finish in a production-like environment.
+\end{enumerate}
