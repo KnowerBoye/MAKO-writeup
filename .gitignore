@@ -49,3 +49,5 @@ latexmkrc
 _build/
 build/
 output/
+
+thesis.pdf
