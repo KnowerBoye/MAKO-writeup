@@ -2,6 +2,7 @@
 
 \chapter{LITERATURE REVIEW} % Main chapter title
 
+\section{Introduction}
 
 The evolution of Large Language Models (LLMs) has transcended the boundaries of simple linguistic synthesis, moving toward the realization of agentic systems capable of autonomous, multi-step task execution \citep{Jian_2025}. While the generative prowess of these models is undeniable, their deployment as singular autonomous entities has exposed significant intrinsic limitations, most notably the propensity for hallucination and the constraints of their autoregressive nature \citep{tran2025multiagentcollaborationmechanismssurvey}. These models often struggle with "slow-thinking" processes \citep{hagendorff2023human} the systematic, deliberative reasoning required for complex problem-solving and face diminishing returns as scaling laws meet the reality of open-ended computational logic \citep{kaplan2020scaling}. To bridge these gaps, most implementations of agentic applications have pivoted toward Multi-Agent Systems (MAS), under the observation that a collective of specialized agents consistently outperforms individual models by distributing cognitive load and introducing cross-verification \citep{albada2025chapter}. This shift, however, necessitates a rigorous definition of how these agents collaborate, communicate, and are orchestrated to ensure that the collective output remains coherent and goal-oriented.
 
@@ -22,8 +23,7 @@ To define the foundational components of the framework, it is first necessary to
 \begin{figure}[h!]
     \centering
     \input{Figures/agent.tikz} 
-    \caption[LLM-Based Agent]{The modular architecture of an LLM-based Agent, illustrating the interaction between reasoning core, memory, and tools.}
-    \label{fig:agent_architecture}
+\caption{Modular architecture of an LLM-based agent showing the interaction between the reasoning core, memory, and tools (Authors’ own construct).}    \label{fig:agent_architecture}
 \end{figure}
 
 Memory allows the agent to maintain state over time, categorizing information into short-term storage (the context window) and long-term storage (external databases or Retrieval-Augmented Generation) \citep{albada2025chapterMemory}. 
@@ -54,7 +54,7 @@ This shift is predicated on the observation that the collective intelligence of 
 \begin{center}
 \includegraphics[scale=0.56]{Figures/MASExample.png}
 \end{center}
-\caption[Example MAS]{Illustration of a Multi-Agent System (MAS) architecture, reproduced from \citet{yang2024llmbasedmultiagentsystemstechniques}}
+\caption{Example Multi-Agent System (MAS) architecture \citep{yang2024llmbasedmultiagentsystemstechniques}.}
 \label{MASExample}
 \end{figure*}
 
@@ -121,9 +121,7 @@ By formalizing these architectures, the research enables a structural ablation o
 \begin{figure*}[ht]
 \centering
 \includegraphics[width=\textwidth, keepaspectratio]{Figures/agent_scaling.png}
-\caption[Empirical Performance of Agent Scaling across Architectures]{Empirical Performance of Agent Scaling across Architectures. (Adapted from \citet{kim2025sciencescalingagentsystems}). Average performance (\%) across four agentic benchmarks improves consistently with increasing model Intelligence Index across three major LLM families (OpenAI, Google, and Anthropic). 
-Single Agent System (SAS) serves as the reference trajectory, while Multi-Agent System (MAS) variants—Centralized, Decentralized, Independent, and Hybrid—reveal distinct scaling behaviors. Percentage deltas (e.g., +8.1\%, –4.6\%) indicate the relative performance change of the best-performing MAS variant compared to the SAS baseline at a corresponding Intelligence Index. 
-The data suggests that centralized and hybrid coordination generally yield superior scaling efficiency, amplifying capability gains more effectively than individual model scaling.}
+\caption{Empirical performance of agent scaling across architectures, showing average benchmark performance versus model Intelligence Index for different LLM families and coordination strategies (adapted from \citep{kim2025sciencescalingagentsystems}).}
 \label{agent_scalling}
 \end{figure*}
 
